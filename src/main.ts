@@ -1,5 +1,5 @@
 import { Canvas2DUtility } from "./canvas2d"
-import { Position, Viper } from "./characters"
+import { Position, Shot, Viper } from "./characters"
 import { Scene } from "./renderers"
 import { ViperRenderer } from "./renderers"
 
@@ -18,13 +18,17 @@ window.addEventListener("load", () => {
   }
   const util = new Canvas2DUtility(canvas)
   util.imageLoader("image/viper.png", (loadedImage) => {
-    initialize(canvas)
-    const scene = new Scene("coming", Date.now())
-    const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, loadedImage, 3)
-    const endPosition = new Position(VIPER_INIT_POS.x, VIPER_INIT_POS.y - 100)
-    const controller = new UserInputController()
-    const viperRenderer = new ViperRenderer(viper, util.context, scene, endPosition, controller)
-    render(util, viperRenderer, controller)
+    util.imageLoader("image/viper_shot.png", (shotImage) => {
+      initialize(canvas)
+      const scene = new Scene("coming", Date.now())
+      const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, loadedImage, 3)
+      const shots =  Array.from({length: 10}).map(() => new Shot(shotImage, 3))
+      viper.shotArray = shots
+      const endPosition = new Position(VIPER_INIT_POS.x, VIPER_INIT_POS.y - 100)
+      const controller = new UserInputController()
+      const viperRenderer = new ViperRenderer(viper, util.context, scene, endPosition, controller)
+      render(util, viperRenderer)
+      })
   })
 })
 
@@ -39,14 +43,14 @@ function generateRandomInt(range: number) {
   return Math.floor(random*range)
 }
 
-function render(util: Canvas2DUtility, viperRenderer: ViperRenderer, controller: UserInputController) {
+function render(util: Canvas2DUtility, viperRenderer: ViperRenderer) {
   const canvas = util.canvas
 
   util.drawRect(0, 0, canvas.width, canvas.height, "#eeeeee")
 
   viperRenderer.update()
 
-  requestAnimationFrame(() => render(util, viperRenderer, controller))
+  requestAnimationFrame(() => render(util, viperRenderer))
 }
 
 export class UserInputController {
@@ -54,6 +58,7 @@ export class UserInputController {
   down: boolean = false
   right: boolean = false
   left: boolean = false
+  zKey: boolean = false
   constructor() {
     addEventListener('keydown', (event) => {
       if (event.key === "ArrowRight") {
@@ -68,6 +73,9 @@ export class UserInputController {
       if (event.key === "ArrowDown") {
         this.down = true
       }
+      if (event.key === "z") {
+        this.zKey = true
+      }
     })
     addEventListener('keyup', (event) => {
       if (event.key === "ArrowRight") {
@@ -81,6 +89,9 @@ export class UserInputController {
       }
       if (event.key === "ArrowDown") {
         this.down = false
+      }
+      if (event.key === "z") {
+        this.zKey = false
       }
     })
   }

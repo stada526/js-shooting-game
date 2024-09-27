@@ -1,9 +1,10 @@
-import { Position, Viper } from "./characters";
+import { Position, Shot, Viper } from "./characters";
 import { UserInputController } from "./main";
 
 
 export class ViperRenderer {
     private _initPosition: Position;
+    private _shotCounter: number = 0;
     constructor(
         private readonly _viper: Viper,
         private readonly _ctx: CanvasRenderingContext2D,
@@ -15,6 +16,9 @@ export class ViperRenderer {
     }
 
     update() {
+        const canvasWidth = this._ctx.canvas.width
+        const canvasHeight = this._ctx.canvas.height
+
         if (this._scene.type === "coming") {
             const currentTime = Date.now();
             const deltaT = currentTime - this._scene.startTime;
@@ -42,17 +46,40 @@ export class ViperRenderer {
             if (this._controller.down) {
                 this._viper.moveBy(0, this._viper.speed)
             }
-            const { width, height } = this._ctx.canvas
-            this._viper.x = Math.min(width, Math.max(0, this._viper.x))
-            this._viper.y = Math.min(height, Math.max(0, this._viper.y))
+            this._viper.x = Math.min(canvasWidth, Math.max(0, this._viper.x))
+            this._viper.y = Math.min(canvasHeight, Math.max(0, this._viper.y))
+
+            if (this._controller.zKey) {
+                if (this._viper.shotInterval < this._shotCounter) {
+                    this._viper.fire()
+                    this._shotCounter = 0
+                }
+            }
+            for (const shot of this._viper.activeShots) {
+                shot.proceed()
+            }
+
         }
         const offsetX = this._viper.width / 2
         const offsetY = this._viper.height / 2
-
         this._ctx.drawImage(this._viper.image, this._viper.x - offsetX, this._viper.y - offsetY);
+
+        this._viper.activeShots.forEach(shot => {
+            const offsetX = shot.width / 2
+            const offsetY = shot.height / 2
+            if (shot.y - offsetY < 0) {
+                shot.isActive = false
+            }
+            else {
+                this._ctx.drawImage(shot.image, shot.x - offsetX, shot.y - offsetY)
+            }
+        })
         
+        this._shotCounter ++;
     }
 }
+
+
 type SceneType = "coming" | "playing"
 
 export class Scene {
