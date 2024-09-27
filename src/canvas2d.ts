@@ -1,35 +1,42 @@
 export class Canvas2DUtility {
-    private canvasElement: HTMLCanvasElement
-    private context2D: CanvasRenderingContext2D
+    private _canvasElement: HTMLCanvasElement
+    private _ctx: CanvasRenderingContext2D
+    readonly canvasWidth: number
+    readonly canvasHeight: number
 
     constructor(canvas: HTMLCanvasElement) {
-        this.canvasElement = canvas
+        this._canvasElement = canvas
         const context = canvas.getContext('2d')
         if (!context) {
             throw Error("Couldn't get 2D context.")
         }
-        this.context2D = context
-    }
-    
-    get canvas(): HTMLCanvasElement {
-        return this.canvasElement
-    }
-    get context(): CanvasRenderingContext2D {
-        return this.context2D
+        this._ctx = context
+        this.canvasWidth = canvas.width
+        this.canvasHeight = canvas.height
     }
 
     drawRect(x: number, y: number, width: number, height: number, color?: string) {
         if (color) {
-            this.context2D.fillStyle = color
+            this._ctx.fillStyle = color
         }
-        this.context2D.fillRect(x,y,width,height)
+        this._ctx.fillRect(x,y,width,height)
     }
-    
-    imageLoader(path: string, callback: (target: HTMLImageElement) => void) {
+
+    drawImage(image: HTMLImageElement, x: number, y: number) {
+        this._ctx.drawImage(image, x, y)
+    }
+
+    async imageLoader(path: string): Promise<HTMLImageElement> {
         const target = new Image()
         target.src = path
-        target.addEventListener("load", () => {
-            callback(target)
+        return new Promise(resolve => {
+            target.addEventListener("load", () => {
+                return resolve(target)
+            })
         })
+    }
+    
+    setGlobalAlpha(alpha: number) {
+        this._ctx.globalAlpha = alpha
     }
 }
