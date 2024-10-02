@@ -1,6 +1,6 @@
 import { Canvas2DUtility } from "./canvas2d"
-import { Position, Viper } from "./characters"
-import { Scene, ShotRenderer, StartEventRenderer } from "./renderers"
+import { Enemy, Position, Viper } from "./characters"
+import { EnemyRenderer, Scene, ShotRenderer, StartEventRenderer } from "./renderers"
 import { ViperRenderer } from "./renderers"
 
 const CANVAS_WIDTH = 640
@@ -20,19 +20,25 @@ window.addEventListener("load", async() => {
   const util = new Canvas2DUtility(canvas)
 
   const viperImage = await util.imageLoader("image/viper.png")
+  const enemyImage = await util.imageLoader("image/enemy_small.png")
   const doubleShotImage = await util.imageLoader("image/viper_shot.png")
   const singleShotImage = await util.imageLoader("image/viper_single_shot.png")
 
   const scene = new Scene("coming", Date.now())
   const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, 3, viperImage, singleShotImage, doubleShotImage)
+  const enemies = [
+    new Enemy(100, 50, 2, enemyImage),
+    new Enemy(400, 50, 2, enemyImage),
+  ]
   viper.setDoubleShots(10)
   viper.setSingleShots(10)
   const endPosition = new Position(VIPER_INIT_POS.x, VIPER_INIT_POS.y - 100)
   const controller = new UserInputController()
   const viperRenderer = new ViperRenderer(viper, util, controller)
+  const enemyRenderer = new EnemyRenderer(enemies, util)
   const shotRenderer = new ShotRenderer(viper, util)
   const startEventRenderer = new StartEventRenderer(viper, util, scene, endPosition)
-  render(util, scene, startEventRenderer, viperRenderer, shotRenderer)
+  render(util, scene, startEventRenderer, viperRenderer, shotRenderer, enemyRenderer)
 
 })
 
@@ -47,7 +53,14 @@ function generateRandomInt(range: number) {
   return Math.floor(random*range)
 }
 
-function render(util: Canvas2DUtility, scene: Scene, startEventRenderer: StartEventRenderer, viperRenderer: ViperRenderer, shotRenderer: ShotRenderer) {
+function render(
+  util: Canvas2DUtility,
+  scene: Scene,
+  startEventRenderer: StartEventRenderer,
+  viperRenderer: ViperRenderer,
+  shotRenderer: ShotRenderer,
+  enemyRenderer: EnemyRenderer
+) {
   util.drawRect(0, 0, util.canvasWidth, util.canvasHeight, "#eeeeee")
 
   if (scene.type === "coming") {
@@ -55,9 +68,10 @@ function render(util: Canvas2DUtility, scene: Scene, startEventRenderer: StartEv
   } else {
     viperRenderer.update()
     shotRenderer.update()
+    enemyRenderer.update()
   }
 
-  requestAnimationFrame(() => render(util, scene, startEventRenderer, viperRenderer, shotRenderer))
+  requestAnimationFrame(() => render(util, scene, startEventRenderer, viperRenderer, shotRenderer, enemyRenderer))
 }
 
 export class UserInputController {

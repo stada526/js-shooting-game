@@ -1,5 +1,5 @@
 import { Canvas2DUtility } from "./canvas2d";
-import { Position, Shot, Viper } from "./characters";
+import { Enemy, Position, Shot, Viper } from "./characters";
 import { UserInputController } from "./main";
 
 
@@ -73,6 +73,34 @@ export class ShotRenderer {
                 this._canvasUtil.rotatinoDraw(shot, shot.angle)
             }
         })
+    }
+}
+
+
+export class EnemyRenderer {
+    constructor(
+        private readonly _enemies: Enemy[],
+        private readonly _canvasUtil: Canvas2DUtility,
+    ) {}
+
+    update() {
+        for (const enemy of this._enemies.filter(x => x.life)) {
+            enemy.proceed()
+            const offsetX = enemy.width / 2
+            const offsetY = enemy.height / 2
+
+            const nextX = enemy.x - offsetX
+            const nextY = enemy.y - offsetY
+            if (
+                !this._canvasUtil.hasInCanvasRange(nextX, nextY)
+            ) {
+                enemy.destroy()
+            }
+            else {
+                this._canvasUtil.drawImage(enemy.objectImage, enemy.x, enemy.y)
+            }
+
+        }
     }
 }
 

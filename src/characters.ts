@@ -30,13 +30,13 @@ export class Viper implements CanvasObject {
     private _shotArray: Shot[] = []
     private _singleShotArray: Shot[] = []
 
-    constructor(x: number, y: number, speed: number, viperImage: HTMLImageElement, singleShotImage: HTMLImageElement, doubleShotImage: HTMLImageElement) {
+    constructor(x: number, y: number, speed: number, image: HTMLImageElement, singleShotImage: HTMLImageElement, doubleShotImage: HTMLImageElement) {
         this._position = new Position(x, y)
-        this.width = viperImage.width
-        this.height = viperImage.height
+        this.width = image.width
+        this.height = image.height
         this.speed = speed
 
-        this.objectImage = viperImage
+        this.objectImage = image
         this.doubleShotImage = doubleShotImage
         this.singleShotImage = singleShotImage
     }
@@ -146,3 +146,37 @@ export class Shot implements CanvasObject {
     }
 }
 
+export class Enemy implements CanvasObject {
+    private _position: Position
+    readonly width: number
+    readonly height: number
+    readonly speed: number
+    life = 10
+
+    readonly objectImage: HTMLImageElement
+
+    constructor(x: number, y: number, speed: number, objectImage: HTMLImageElement) {
+        this._position = new Position(x, y)
+        this.width = objectImage.width
+        this.height = objectImage.height
+        this.speed = speed
+
+        this.objectImage = objectImage
+    }
+    
+    get x(): number {
+        return this._position.x
+    }
+    
+    get y(): number {
+        return this._position.y
+    }
+    
+    proceed(): void {
+        this._position = new Position(this.x, this.y + this.speed)        
+    }
+    
+    destroy(): void {
+        this.life = 0
+    }
+}
