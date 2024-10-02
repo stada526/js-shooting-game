@@ -41,7 +41,7 @@ export class ViperRenderer {
         /** Render the viper */
         const offsetX = this._viper.width / 2
         const offsetY = this._viper.height / 2
-        this._canvasUtil.drawImage(this._viper.image, this._viper.x - offsetX, this._viper.y - offsetY);
+        this._canvasUtil.drawImage(this._viper.objectImage, this._viper.x - offsetX, this._viper.y - offsetY);
 
         this._shotCounter ++;
     }
@@ -61,11 +61,16 @@ export class ShotRenderer {
         this._viper.activeShots.forEach(shot => {
             const offsetX = shot.width / 2
             const offsetY = shot.height / 2
-            if (shot.y - offsetY < 0) {
-                shot.isActive = false
+
+            const nextX = shot.x - offsetX
+            const nextY = shot.y - offsetY
+            if (
+                !this._canvasUtil.hasInCanvasRange(nextX, nextY)
+            ) {
+                shot.inactivate()
             }
             else {
-                this._canvasUtil.drawImage(shot.image, shot.x - offsetX, shot.y - offsetY)
+                this._canvasUtil.rotatinoDraw(shot, shot.angle)
             }
         })
     }
@@ -95,7 +100,7 @@ export class StartEventRenderer {
         }
         const offsetX = this._viper.width / 2
         const offsetY = this._viper.height / 2
-        this._canvasUtil.drawImage(this._viper.image, this._viper.x - offsetX, this._viper.y - offsetY);
+        this._canvasUtil.drawImage(this._viper.objectImage, this._viper.x - offsetX, this._viper.y - offsetY);
     }
 }
 

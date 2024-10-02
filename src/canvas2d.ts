@@ -35,8 +35,36 @@ export class Canvas2DUtility {
             })
         })
     }
-    
+
+    rotatinoDraw(obj: CanvasObject, angle: number): void {
+        this._ctx.save()
+
+        this._ctx.translate(obj.x, obj.y)
+        const radian = angle * (Math.PI / 180)
+        this._ctx.rotate(radian)
+
+        const offsetX = obj.width / 2
+        const offsetY = obj.height / 2
+
+        this._ctx.drawImage(obj.objectImage, -offsetX, -offsetY)
+
+        this._ctx.restore()
+    }
+
     setGlobalAlpha(alpha: number) {
         this._ctx.globalAlpha = alpha
     }
+
+    hasInCanvasRange(x: number, y: number): boolean {
+        return 0 <= y && y <= this.canvasHeight &&
+                0 <= x && x <= this.canvasWidth
+    }
+}
+
+export interface CanvasObject {
+    width: number
+    height: number
+    x: number
+    y: number
+    objectImage: HTMLImageElement
 }

@@ -1,5 +1,5 @@
 import { Canvas2DUtility } from "./canvas2d"
-import { Position, Shot, Viper } from "./characters"
+import { Position, Viper } from "./characters"
 import { Scene, ShotRenderer, StartEventRenderer } from "./renderers"
 import { ViperRenderer } from "./renderers"
 
@@ -18,12 +18,15 @@ window.addEventListener("load", async() => {
   }
   initialize(canvas)
   const util = new Canvas2DUtility(canvas)
+
   const viperImage = await util.imageLoader("image/viper.png")
-  const shotImage = await util.imageLoader("image/viper_shot.png")
+  const doubleShotImage = await util.imageLoader("image/viper_shot.png")
+  const singleShotImage = await util.imageLoader("image/viper_single_shot.png")
+
   const scene = new Scene("coming", Date.now())
-  const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, viperImage, 3)
-  const shots =  Array.from({length: 10}).map(() => new Shot(shotImage, 3))
-  viper.shotArray = shots
+  const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, 3, viperImage, singleShotImage, doubleShotImage)
+  viper.setDoubleShots(10)
+  viper.setSingleShots(10)
   const endPosition = new Position(VIPER_INIT_POS.x, VIPER_INIT_POS.y - 100)
   const controller = new UserInputController()
   const viperRenderer = new ViperRenderer(viper, util, controller)
