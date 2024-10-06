@@ -72,7 +72,7 @@ export class InvadeScene implements Scene {
     static readonly SCENE_NAME = SceneName.INVADE
     readonly SCENE_NAME = InvadeScene.SCENE_NAME
     constructor(private _viperRenderer: ViperRenderer, private _shotRenderer: ShotRenderer, private _enemyRenderer: EnemyRenderer) {}
-    update(time: number) {
+    update(_: number) {
         this._viperRenderer.update()
         this._shotRenderer.update()
         this._enemyRenderer.update()
