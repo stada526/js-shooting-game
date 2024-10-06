@@ -1,5 +1,5 @@
 import { Canvas2DUtility } from "./canvas2d";
-import { Enemy, Position, Shot, Viper } from "./characters";
+import { Enemy, Viper } from "./characters";
 import { UserInputController } from "./main";
 
 
@@ -104,46 +104,4 @@ export class EnemyRenderer {
     }
 }
 
-export class StartEventRenderer {
-    private _initPosition: Position;
-    constructor(
-        private readonly _viper: Viper,
-        private readonly _canvasUtil: Canvas2DUtility,
-        private readonly _scene: Scene,
-        private readonly _endPosition: Position,
-    ) {
-        this._initPosition = new Position(_viper.x, _viper.y);
-    }
-    update() {
-        const currentTime = Date.now();
-        const deltaT = currentTime - this._scene.startTime;
-        this._viper.y = this._initPosition.y - 20 * (deltaT / 100);
-
-        this._canvasUtil.setGlobalAlpha(deltaT % 10 < 5 ? 0.5 : 1)
-
-        if (this._viper.y <= this._endPosition.y) {
-            this._scene.type = "playing";
-            this._viper.y = this._endPosition.y;
-            this._canvasUtil.setGlobalAlpha(1)
-        }
-        const offsetX = this._viper.width / 2
-        const offsetY = this._viper.height / 2
-        this._canvasUtil.drawImage(this._viper.objectImage, this._viper.x - offsetX, this._viper.y - offsetY);
-    }
-}
-
-
-type SceneType = "coming" | "playing"
-
-export class Scene {
-    type: SceneType
-    startTime: number
-    constructor(type: SceneType, startTime: number) {
-        this.type = type
-        this.startTime = startTime
-    }
-    acceptingUserInput(): boolean {
-        return this.type === "playing"
-    }
-}
 

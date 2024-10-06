@@ -1,7 +1,8 @@
 import { Canvas2DUtility } from "./canvas2d"
 import { Enemy, Position, Viper } from "./characters"
-import { EnemyRenderer, Scene, ShotRenderer, StartEventRenderer } from "./renderers"
+import { EnemyRenderer, ShotRenderer } from "./renderers"
 import { ViperRenderer } from "./renderers"
+import { IntroScene, InvadeScene, SceneManager } from "./scene"
 
 const CANVAS_WIDTH = 640
 const CANVAS_HEIGHT = 480
@@ -17,14 +18,13 @@ window.addEventListener("load", async() => {
     throw new Error(`Couldn't find HTMLCanvasElement with id main-canvas`)
   }
   initialize(canvas)
-  const util = new Canvas2DUtility(canvas)
+  const canvasUtil = new Canvas2DUtility(canvas)
 
-  const viperImage = await util.imageLoader("image/viper.png")
-  const enemyImage = await util.imageLoader("image/enemy_small.png")
-  const doubleShotImage = await util.imageLoader("image/viper_shot.png")
-  const singleShotImage = await util.imageLoader("image/viper_single_shot.png")
+  const viperImage = await canvasUtil.imageLoader("image/viper.png")
+  const enemyImage = await canvasUtil.imageLoader("image/enemy_small.png")
+  const doubleShotImage = await canvasUtil.imageLoader("image/viper_shot.png")
+  const singleShotImage = await canvasUtil.imageLoader("image/viper_single_shot.png")
 
-  const scene = new Scene("coming", Date.now())
   const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, 3, viperImage, singleShotImage, doubleShotImage)
   const enemies = [
     new Enemy(100, 50, 2, enemyImage),
@@ -32,13 +32,22 @@ window.addEventListener("load", async() => {
   ]
   viper.setDoubleShots(10)
   viper.setSingleShots(10)
-  const endPosition = new Position(VIPER_INIT_POS.x, VIPER_INIT_POS.y - 100)
+
   const controller = new UserInputController()
-  const viperRenderer = new ViperRenderer(viper, util, controller)
-  const enemyRenderer = new EnemyRenderer(enemies, util)
-  const shotRenderer = new ShotRenderer(viper, util)
-  const startEventRenderer = new StartEventRenderer(viper, util, scene, endPosition)
-  render(util, scene, startEventRenderer, viperRenderer, shotRenderer, enemyRenderer)
+
+  const viperRenderer = new ViperRenderer(viper, canvasUtil, controller)
+  const enemyRenderer = new EnemyRenderer(enemies, canvasUtil)
+  const shotRenderer = new ShotRenderer(viper, canvasUtil)
+
+  const sceneManager = new SceneManager()
+  const introScene = new IntroScene(viper, canvasUtil, sceneManager)
+  const invadeScene = new InvadeScene(viperRenderer, shotRenderer, enemyRenderer)
+
+  sceneManager.add("intro", introScene)
+  sceneManager.add("invade", invadeScene)
+
+  sceneManager.use("intro")
+  render(canvasUtil, sceneManager)
 
 })
 
@@ -55,23 +64,13 @@ function generateRandomInt(range: number) {
 
 function render(
   util: Canvas2DUtility,
-  scene: Scene,
-  startEventRenderer: StartEventRenderer,
-  viperRenderer: ViperRenderer,
-  shotRenderer: ShotRenderer,
-  enemyRenderer: EnemyRenderer
+  scene: SceneManager
 ) {
   util.drawRect(0, 0, util.canvasWidth, util.canvasHeight, "#eeeeee")
 
-  if (scene.type === "coming") {
-    startEventRenderer.update()
-  } else {
-    viperRenderer.update()
-    shotRenderer.update()
-    enemyRenderer.update()
-  }
+  scene.update()
 
-  requestAnimationFrame(() => render(util, scene, startEventRenderer, viperRenderer, shotRenderer, enemyRenderer))
+  requestAnimationFrame(() => render(util, scene))
 }
 
 export class UserInputController {
