@@ -43,10 +43,10 @@ window.addEventListener("load", async() => {
   const introScene = new IntroScene(viper, canvasUtil, sceneManager)
   const invadeScene = new InvadeScene(viperRenderer, shotRenderer, enemyRenderer)
 
-  sceneManager.add("intro", introScene)
-  sceneManager.add("invade", invadeScene)
+  sceneManager.add(introScene)
+  sceneManager.add(invadeScene)
 
-  sceneManager.use("intro")
+  sceneManager.use(IntroScene.SCENE_NAME)
   render(canvasUtil, sceneManager)
 
 })

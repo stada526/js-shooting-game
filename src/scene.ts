@@ -2,17 +2,22 @@ import { Canvas2DUtility } from "./canvas2d"
 import { Viper } from "./characters"
 import { EnemyRenderer, ShotRenderer, ViperRenderer } from "./renderers"
 
+enum SceneName {
+    INTRO = "INTRO",
+    INVADE = "INVADE",
+}
+
 export class SceneManager {
-    private _scenes = new Map<string, Scene>()
-    private _activeSceneName: string | null = null
+    private _scenes = new Map<SceneName, Scene>()
+    private _activeSceneName: SceneName | null = null
     private _startTime: number = 0
     private _frame: number = -1
 
-    add(sceneName: string, scene: Scene) {
-        this._scenes.set(sceneName, scene)
+    add(scene: Scene) {
+        this._scenes.set(scene.SCENE_NAME, scene)
     }
 
-    use(sceneName: string): void {
+    use(sceneName: SceneName): void {
         if (!this._scenes.has(sceneName)) {
             throw new Error(`There is no scene named ${sceneName}.`)
         }
@@ -34,10 +39,13 @@ export class SceneManager {
 }
 
 interface Scene {
+    readonly SCENE_NAME: SceneName
     update: (time: number) => void
 };
 
 export class IntroScene implements Scene {
+    static readonly SCENE_NAME = SceneName.INTRO
+    readonly SCENE_NAME = IntroScene.SCENE_NAME
     constructor(
         private readonly _viper: Viper,
         private readonly _canvasUtil: Canvas2DUtility,
@@ -50,7 +58,7 @@ export class IntroScene implements Scene {
         this._canvasUtil.setGlobalAlpha(time % 10 < 5 ? 0.5 : 1)
 
         if (this._viper.y <= this._canvasUtil.canvasHeight) {
-            this._scene.use("invade")
+            this._scene.use(InvadeScene.SCENE_NAME)
             this._viper.y = this._canvasUtil.canvasHeight;
             this._canvasUtil.setGlobalAlpha(1)
         }
@@ -61,6 +69,8 @@ export class IntroScene implements Scene {
 }
 
 export class InvadeScene implements Scene {
+    static readonly SCENE_NAME = SceneName.INVADE
+    readonly SCENE_NAME = InvadeScene.SCENE_NAME
     constructor(private _viperRenderer: ViperRenderer, private _shotRenderer: ShotRenderer, private _enemyRenderer: EnemyRenderer) {}
     update(time: number) {
         this._viperRenderer.update()
