@@ -1,5 +1,6 @@
 import { Canvas2DUtility } from "./canvas2d";
 import { Enemy, Viper } from "./characters";
+import { objectImageProvider } from "./object-image-provider";
 import { EnemyRenderer, ShotRenderer } from "./renderers";
 import { ViperRenderer } from "./renderers";
 import { IntroScene, InvadeScene, SceneManager } from "./scene";
@@ -17,28 +18,11 @@ window.addEventListener("load", async () => {
     throw new Error(`Couldn't find HTMLCanvasElement with id main-canvas`);
   }
   initialize(canvas);
+  await objectImageProvider.load();
   const canvasUtil = new Canvas2DUtility(canvas);
 
-  const viperImage = await canvasUtil.imageLoader("image/viper.png");
-  const enemyImage = await canvasUtil.imageLoader("image/enemy_small.png");
-  const doubleShotImage = await canvasUtil.imageLoader("image/viper_shot.png");
-  const singleShotImage = await canvasUtil.imageLoader(
-    "image/viper_single_shot.png"
-  );
-  const enemyShotImage = await canvasUtil.imageLoader("image/enemy_shot.png");
-
-  const viper = new Viper(
-    VIPER_INIT_POS.x,
-    VIPER_INIT_POS.y,
-    3,
-    viperImage,
-    singleShotImage,
-    doubleShotImage
-  );
-  const enemies = [
-    new Enemy(100, 50, 2, enemyImage, enemyShotImage),
-    new Enemy(400, 50, 2, enemyImage, enemyShotImage),
-  ];
+  const viper = new Viper(VIPER_INIT_POS.x, VIPER_INIT_POS.y, 3);
+  const enemies = [new Enemy(100, 50, 2), new Enemy(400, 50, 2)];
   enemies.forEach((x) => x.setShots(10));
 
   viper.setDoubleShots(10);

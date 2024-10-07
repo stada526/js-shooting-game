@@ -1,5 +1,8 @@
 import { CanvasObject } from "./canvas2d";
 import { Position, Vector } from "./characters";
+import { ObjectImageKey, objectImageProvider } from "./object-image-provider";
+
+type ShotType = "ViperSingleShot" | "ViperDoubleShot" | "SmallEnemyShot";
 
 export class Shot implements CanvasObject {
   private _position = new Position(0, 0);
@@ -10,12 +13,24 @@ export class Shot implements CanvasObject {
   readonly angle: number;
   readonly objectImage: HTMLImageElement;
   private _isActive: boolean = false;
-  constructor(image: HTMLImageElement, speed: number, angle: number = 0) {
-    this.width = image.width;
-    this.height = image.height;
+  constructor(type: ShotType, speed: number, angle: number = 0) {
     this.speed = speed;
     this._vector = Vector.fromAngle(angle);
-    this.objectImage = image;
+    if (type === "ViperSingleShot") {
+      this.objectImage = objectImageProvider.get(
+        ObjectImageKey.ViperSingleShot
+      );
+    } else if (type === "ViperDoubleShot") {
+      this.objectImage = objectImageProvider.get(
+        ObjectImageKey.ViperDoubleShot
+      );
+    } else if (type === "SmallEnemyShot") {
+      this.objectImage = objectImageProvider.get(ObjectImageKey.EnemyShot);
+    } else {
+      throw new Error(`Unknown shot type: ${type}`);
+    }
+    this.width = this.objectImage.width;
+    this.height = this.objectImage.height;
     this.angle = angle;
   }
   set(x: number, y: number): void {

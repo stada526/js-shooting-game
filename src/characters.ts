@@ -1,4 +1,5 @@
 import { CanvasObject } from "./canvas2d";
+import { ObjectImageKey, objectImageProvider } from "./object-image-provider";
 import { Shot } from "./shot";
 
 export class Position {
@@ -29,29 +30,18 @@ export class Viper implements CanvasObject, Shooter {
   readonly speed: number;
 
   readonly objectImage: HTMLImageElement;
-  readonly doubleShotImage: HTMLImageElement;
-  readonly singleShotImage: HTMLImageElement;
 
   shotInterval: number = 10;
   private _shotArray: Shot[] = [];
   private _singleShotArray: Shot[] = [];
 
-  constructor(
-    x: number,
-    y: number,
-    speed: number,
-    image: HTMLImageElement,
-    singleShotImage: HTMLImageElement,
-    doubleShotImage: HTMLImageElement
-  ) {
+  constructor(x: number, y: number, speed: number) {
     this._position = new Position(x, y);
-    this.width = image.width;
-    this.height = image.height;
     this.speed = speed;
 
-    this.objectImage = image;
-    this.doubleShotImage = doubleShotImage;
-    this.singleShotImage = singleShotImage;
+    this.objectImage = objectImageProvider.get(ObjectImageKey.Viper);
+    this.width = this.objectImage.width;
+    this.height = this.objectImage.height;
   }
 
   moveBy(deltaX: number, deltaY: number): void {
@@ -98,7 +88,7 @@ export class Viper implements CanvasObject, Shooter {
 
   setDoubleShots(numShots: number): void {
     this._shotArray = Array.from({ length: numShots }).map(
-      () => new Shot(this.doubleShotImage, 3)
+      () => new Shot("ViperDoubleShot", 3)
     );
   }
 
@@ -106,8 +96,8 @@ export class Viper implements CanvasObject, Shooter {
     this._singleShotArray = Array.from({ length: numShots }).reduce<Shot[]>(
       (acc) => [
         ...acc,
-        new Shot(this.singleShotImage, 3, -10),
-        new Shot(this.singleShotImage, 3, 10),
+        new Shot("ViperSingleShot", 3, -10),
+        new Shot("ViperSingleShot", 3, 10),
       ],
       []
     );
@@ -132,22 +122,14 @@ export class Enemy implements CanvasObject, Shooter {
   private _shotArray: Shot[] = [];
 
   readonly objectImage: HTMLImageElement;
-  readonly shotImage: HTMLImageElement;
 
-  constructor(
-    x: number,
-    y: number,
-    speed: number,
-    objectImage: HTMLImageElement,
-    shotImage: HTMLImageElement
-  ) {
+  constructor(x: number, y: number, speed: number) {
     this._position = new Position(x, y);
-    this.width = objectImage.width;
-    this.height = objectImage.height;
     this.speed = speed;
 
-    this.objectImage = objectImage;
-    this.shotImage = shotImage;
+    this.objectImage = objectImageProvider.get(ObjectImageKey.SmallEnemy);
+    this.width = this.objectImage.width;
+    this.height = this.objectImage.height;
   }
 
   get x(): number {
@@ -181,7 +163,7 @@ export class Enemy implements CanvasObject, Shooter {
 
   setShots(numShots: number): void {
     this._shotArray = Array.from({ length: numShots }).map(
-      () => new Shot(this.shotImage, 5, 180)
+      () => new Shot("SmallEnemyShot", 5, 180)
     );
   }
 }
